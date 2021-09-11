@@ -49,6 +49,7 @@ const createTaskEl = (taskDataObj) => {
 
     taskDataObj.id = taskIdCounter;
     tasks[taskDataObj.id] = taskDataObj;
+    saveTasks();
 
     let taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
@@ -118,6 +119,7 @@ const deleteTask = function(taskId) {
     taskSelected.remove();
 
     delete tasks[parseInt(taskId)];
+    saveTasks();
 }
 
 const editTask = (taskId) => {
@@ -142,6 +144,7 @@ const completeEditTask = (taskName, taskType, taskId) => {
     let taskToUpdate = tasks[parseInt(taskId)];
     taskToUpdate.name = taskName;
     taskToUpdate.type = taskType;
+    saveTasks();
 
     formEl.removeAttribute('data-task-id');
     document.querySelector('#save-task').textContent = 'Add Task';
@@ -166,6 +169,11 @@ const taskStatusChangeHandler = (event) => {
 
     let taskToUpdate = tasks[parseInt(taskId)];
     taskToUpdate.status = statusValue;
+    saveTasks();
+}
+
+const saveTasks = () => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
 formEl.addEventListener('submit', taskFormHandler);
