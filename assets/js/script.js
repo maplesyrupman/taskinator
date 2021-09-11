@@ -1,4 +1,5 @@
 let taskIdCounter = 0;
+const tasks = {};
 const formEl = document.querySelector('#task-form');
 const tasksToDoEl = document.querySelector('#tasks-to-do');
 const tasksInProgressEl = document.querySelector('#tasks-in-progress');
@@ -26,7 +27,8 @@ const taskFormHandler = (event) => {
         case false:
             let taskDataObj = {
                 name: taskNameInput, 
-                type: taskTypeInput
+                type: taskTypeInput,
+                status: 'to do'
             }
             createTaskEl(taskDataObj);
             break;
@@ -44,6 +46,9 @@ const createTaskEl = (taskDataObj) => {
     taskInfoEl.className = 'task-info';
     taskInfoEl.innerHTML = `<h3 class='task-name'>${taskDataObj.name}</h3><span class='task-type'>${taskDataObj.type}</span>`;
     listItemEl.appendChild(taskInfoEl);
+
+    taskDataObj.id = taskIdCounter;
+    tasks[taskDataObj.id] = taskDataObj;
 
     let taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
@@ -111,6 +116,8 @@ const taskButtonHandler = (event) => {
 const deleteTask = function(taskId) {
     let taskSelected = document.querySelector(`.task-item[data-task-id='${taskId}']`);
     taskSelected.remove();
+
+    delete tasks[parseInt(taskId)];
 }
 
 const editTask = (taskId) => {
@@ -132,6 +139,10 @@ const completeEditTask = (taskName, taskType, taskId) => {
     taskSelected.querySelector('h3.task-name').textContent = taskName;
     taskSelected.querySelector('span.task-type').textContent = taskType;
 
+    let taskToUpdate = tasks[parseInt(taskId)];
+    taskToUpdate.name = taskName;
+    taskToUpdate.type = taskType;
+
     formEl.removeAttribute('data-task-id');
     document.querySelector('#save-task').textContent = 'Add Task';
 }
@@ -152,6 +163,9 @@ const taskStatusChangeHandler = (event) => {
             tasksCompletedEl.appendChild(taskSelected);
             break;
     }
+
+    let taskToUpdate = tasks[parseInt(taskId)];
+    taskToUpdate.status = statusValue;
 }
 
 formEl.addEventListener('submit', taskFormHandler);
