@@ -1,6 +1,8 @@
 let taskIdCounter = 0;
 const formEl = document.querySelector('#task-form');
 const tasksToDoEl = document.querySelector('#tasks-to-do');
+const tasksInProgressEl = document.querySelector('#tasks-in-progress');
+const tasksCompletedEl = document.querySelector('#tasks-completed');
 const pageContentEl = document.querySelector('#page-content');
 
 const taskFormHandler = (event) => {
@@ -15,12 +17,21 @@ const taskFormHandler = (event) => {
 
     formEl.reset();
 
-    let taskDataObj = {
-        name: taskNameInput,
-        type: taskTypeInput,
-    };
+    let isEdit = formEl.hasAttribute('data-task-id');
 
-    createTaskEl(taskDataObj);
+    switch (isEdit) {
+        case true:
+            completeEditTask(taskNameInput, taskTypeInput, formEl.getAttribute('data-task-id'));
+            break;
+        case false:
+            let taskDataObj = {
+                name: taskNameInput, 
+                type: taskTypeInput
+            }
+            createTaskEl(taskDataObj);
+            break;
+    }
+
 };
 
 const createTaskEl = (taskDataObj) => {
@@ -115,6 +126,34 @@ const editTask = (taskId) => {
     formEl.setAttribute('data-task-id', taskId);
 }
 
-formEl.addEventListener('submit', taskFormHandler);
+const completeEditTask = (taskName, taskType, taskId) => {
+    let taskSelected = document.querySelector(`.task-item[data-task-id='${taskId}']`);
 
+    taskSelected.querySelector('h3.task-name').textContent = taskName;
+    taskSelected.querySelector('span.task-type').textContent = taskType;
+
+    formEl.removeAttribute('data-task-id');
+    document.querySelector('#save-task').textContent = 'Add Task';
+}
+
+const taskStatusChangeHandler = (event) => {
+    let taskId = event.target.getAttribute('data-task-id');
+    let statusValue = event.target.value.toLowerCase();
+    let taskSelected = document.querySelector(`.task-item[data-task-id='${taskId}']`);
+
+    switch (statusValue) {
+        case 'to do':
+            tasksToDoEl.appendChild(taskSelected);
+            break;
+        case 'in progress':
+            tasksInProgressEl.appendChild(taskSelected);
+            break;
+        case 'completed':
+            tasksCompletedEl.appendChild(taskSelected);
+            break;
+    }
+}
+
+formEl.addEventListener('submit', taskFormHandler);
 pageContentEl.addEventListener('click', taskButtonHandler);
+pageContentEl.addEventListener('change', taskStatusChangeHandler);
