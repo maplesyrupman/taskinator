@@ -191,6 +191,15 @@ const loadTasks = () => {
     Object.values(tasks).forEach(task => createTaskEl(task));
 }
 
+const clearTaskGroups = () => {
+    let taskGroups = [tasksToDoEl, tasksInProgressEl, tasksCompletedEl];
+    taskGroups.forEach(taskGroup => {
+        while (taskGroup.hasChildNodes) {
+            taskGroup.lastChild.remove();
+        }
+    })
+}
+
 formEl.addEventListener('submit', taskFormHandler);
 pageContentEl.addEventListener('click', taskButtonHandler);
 pageContentEl.addEventListener('change', taskStatusChangeHandler);
