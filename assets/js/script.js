@@ -1,5 +1,5 @@
 let taskIdCounter = 0;
-const tasks = {};
+let tasks = {};
 const formEl = document.querySelector('#task-form');
 const tasksToDoEl = document.querySelector('#tasks-to-do');
 const tasksInProgressEl = document.querySelector('#tasks-in-progress');
@@ -49,14 +49,23 @@ const createTaskEl = (taskDataObj) => {
 
     taskDataObj.id = taskIdCounter;
     tasks[taskDataObj.id] = taskDataObj;
-    saveTasks();
 
     let taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
 
-    tasksToDoEl.appendChild(listItemEl);
-
     taskIdCounter++;
+    switch (taskDataObj.status) {
+        case 'to do':
+            tasksToDoEl.appendChild(listItemEl);
+            break;
+        case 'in progress':
+            tasksInProgressEl.appendChild(listItemEl);
+            break;
+        case 'completed':
+            tasksCompletedEl.appendChild(listItemEl);
+            break;
+    }
+    saveTasks();
 }
 
 let createTaskActions = (taskId) => {
@@ -174,8 +183,19 @@ const taskStatusChangeHandler = (event) => {
 
 const saveTasks = () => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
+    localStorage.setItem('taskIdCounter', JSON.stringify(taskIdCounter));
+}
+
+const loadTasks = () => {
+    tasks = JSON.parse(localStorage.getItem('tasks'));
+    Object.values(tasks).forEach(task => createTaskEl(task));
 }
 
 formEl.addEventListener('submit', taskFormHandler);
 pageContentEl.addEventListener('click', taskButtonHandler);
 pageContentEl.addEventListener('change', taskStatusChangeHandler);
+
+if (localStorage.getItem('tasks')) {
+    loadTasks();
+    taskIdCounter = JSON.parse(localStorage.getItem('taskIdCounter'));
+}
